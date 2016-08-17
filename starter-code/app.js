@@ -1,56 +1,70 @@
-var app = angular.module('wineApp', []);
+var app = angular.module('wineApp', ['ngRoute', 'ngResource']);
 
 console.log('Angular is working.');
 
 ////////////
 // ROUTES //
 ////////////
+app.config(function($routeProvider, $locationProvider){
+    $routeProvider
+      .when('/', {
+        templateUrl: 'templates/wines-index.html',
+        controller: 'WinesIndexCtrl'
+      })
+      .when('/wines/:id', { // the "id" parameter 
+        templateUrl: 'templates/wines-show.html',
+        controller: 'WinesShowCtrl'
+      });
+    $locationProvider.html5Mode({
+      enabled: true,
+      requireBase: false
+    });
+});
 
 
 /////////////////
 // CONTROLLERS //
 /////////////////
 
-app.controller('WinesIndexCtrl',function($scope){
-  console.log("Wine Index")
-})
+// inject wineservice model??
+app.controller('WinesIndexCtrl', function($scope, WineService){
+  console.log("Wine Index");
+  $scope.hello = "wine index controller is working!";
+  $scope.wines= WineService.query();
+  console.log($scope.wines);
+});
 
-app.controller('WinesShowCtrl',function($scope){
-  console.log("Wine Show")
-})
+
+app.controller('WinesShowCtrl', function ($scope, WineService, $routeParams) {
+    $scope.wine = WineService.get({id: $routeParams.id});
+    console.log($scope.wine);
+});
 
 ////////////
 // MODELS //
 ////////////
 
-app.factory('WineService', function(){
+app.factory('WineService', function($resource){
+    return  $resource('http://daretoexplore.herokuapp.com/wines/:id') ;
+});
 
-  var WineService = {};
+  
+//  
+  // var WineService = {};
+  // WineService.query = function(){
+  //   return ALL_WINES;
+  // };
 
-  WineService.query = function(){
-    return ALL_WINES;
-  }
+  // WineService.get = function(id){
+  //   var id = parseInt(id);
+  //   return ALL_WINES.find(function(wine){
+  //     return wine.id == id;
+  //   });
+  // };
 
-  WineService.get = function(id){
-    var id = parseInt(id);
-    return ALL_WINES.find(function(wine){
-      return wine.id == id;
-    });
-  }
+  // return WineService;
 
-  return WineService;
-
-})
-
-
-
-
-
-
-
-
-
-
+// });
 
 /*
  * Temporary Mock JSON
